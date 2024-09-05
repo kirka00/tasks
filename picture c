@@ -1,0 +1,97 @@
+#include <stdio.h>
+
+#define N 15
+#define M 13
+
+void transform(int *buf, int **matr, int n, int m);
+void make_picture(int **picture, int n, int m);
+void reset_picture(int **picture, int n, int m);
+
+int main() {
+    int picture_data[N][M];
+    int *picture[N];
+
+    transform((int *)picture_data, picture, N, M);
+    
+    make_picture(picture, N, M);
+    
+    return 0;
+}
+
+void make_picture(int **picture, int n, int m) {
+    // Frame and objects within the picture
+    int frame_w[] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+    int frame_h = 1;
+    int tree_trunk_h = 4;
+    int tree_foliage_h = 3;
+    int sun_data[6][5] = { 
+        { 0, 6, 6, 6, 6 },
+        { 0, 0, 6, 6, 6 },
+        { 0, 0, 6, 6, 6 },
+        { 0, 6, 0, 0, 6 },
+        { 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0 } 
+    };
+
+    reset_picture(picture, n, m);
+
+    // Drawing the frame
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            if (i == 0 || i == m - 1) { // Top and bottom frame
+                picture[i][j] = (j < sizeof(frame_w) / sizeof(frame_w[0])) ? frame_w[j] : 1;
+            } else if (j == 0 || j == n - 1) { // Left and right frame
+                picture[i][j] = frame_h;
+            }
+        }
+    }
+
+    // Drawing the tree trunk
+    for (int i = m - tree_trunk_h - 1; i < m - 1; i++) {
+        for (int j = (n / 2) - 2; j <= (n / 2) + 1; j++) {
+            picture[i][j] = 7; // 7 for tree trunk
+        }
+    }
+
+    // Drawing the tree foliage
+    for (int i = m - tree_trunk_h - tree_foliage_h - 1; i < m - tree_trunk_h - 1; i++) {
+        for (int j = (n / 2) - 3; j <= (n / 2) + 3; j++) {
+            picture[i][j] = 3; // 3 for tree foliage
+        }
+    }
+
+    // Placing the sun 
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 5; j++) {
+            if (sun_data[i][j] != 0) {
+                picture[i + 1][j + (n - 5)] = sun_data[i][j]; // Adjust to position the sun
+            }
+        }
+    }
+
+    // Output the picture
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            if (picture[i][j] != 0) {
+                printf("%d", picture[i][j]);
+            } else {
+                printf(" ");
+            }
+        }
+        printf("\n");
+    }
+}
+
+void reset_picture(int **picture, int n, int m) {
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            picture[i][j] = 0;
+        }
+    }
+}
+
+void transform(int *buf, int **matr, int n, int m) {  
+    for(int i = 0; i < n; i++) {
+        matr[i] = buf + i * m;
+    }
+}
